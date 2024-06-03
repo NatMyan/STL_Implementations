@@ -32,8 +32,8 @@ namespace pq {
             priority__queue(const Compare &compare, Container &&cont);
 
             template <typename InputIt>
-            priority__queue(InputIt first, InputIt last, const Compare &compare = Compare(), 
-                            const Container &cont = Container());
+            priority__queue(InputIt first, InputIt last, const Compare &compare = Compare(), const Container &cont = Container());
+
             template <typename InputIt>
             priority__queue(InputIt first, InputIt last, const Compare &compare, Container &&cont);
 
