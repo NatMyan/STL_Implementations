@@ -1,5 +1,3 @@
-// Natalie Manukyan
-
 #ifndef ALGOS_IMPL_HPP
 #define ALGOS_IMPL_HPP
 

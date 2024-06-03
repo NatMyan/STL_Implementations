@@ -1,5 +1,3 @@
-// Natalie Manukyan
-
 /* 
 Implement priority queue based on min-heap data structure, satisifying 
 the synatactic and semantic requirements of std::priority_queue adapter.

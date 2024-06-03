@@ -1,5 +1,3 @@
-// Natalie Manukyan
-
 #ifndef PQ_IMPL_HPP
 #define PQ_IMPL_HPP
 

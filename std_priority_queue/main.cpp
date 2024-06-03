@@ -1,5 +1,3 @@
-// Natalie Manukyan
-
 #include "pq.hpp"
 #include <functional>
 #include <iostream>
