@@ -7,9 +7,8 @@
 namespace bsv {
     template <typename CharT, typename Traits = std::char_traits<CharT> > 
     class basic_string_view {
-        private:
-            const_pointer ptr_;
-            size_type size_;
+        public:
+            static constexpr size_type npos = size_type(-1);
 
         public:
             using traits_type = Traits;
@@ -18,24 +17,67 @@ namespace bsv {
             using const_pointer = const CharT*;
             using reference = CharT&;
             using const_reference = const CharT&;
-            using const_iterator = std::countiguous_iterator;
+            using const_iterator = const CharT*; // std::countiguous_iterator;
             using iterator = const_iterator;
             using const_reverse_iterator = std::reverse_iterator<const_iterator>;
             using reverse_iterator = const_reverse_iterator;
             using size_type = std::size_t;
             using difference_type = std::ptrdiff_t;
 
+        private:
+            const_pointer data_;
+            size_type size_;
+
         public: 
-            constexpr basic_string_view() noexcept;
+            // Default constructor. Constructs an empty std::basic_string_view. After construction, data() is equal to nullptr, 
+            // and size() is equal to ​0​.
+            constexpr basic_string_view() noexcept : data_(nullptr), size_(0) {};
+
+            // Copy constructor. Constructs a view of the same content as other. After construction, data() is equal to other.data(), 
+            // and size() is equal to other.size().
             constexpr basic_string_view (const basic_string_view& other) noexcept = default;
-            constexpr basic_string_view (const CharT* s, size_type count);
-            constexpr basic_string_view (const CharT* s);
+
+            // Constructs a view of the first count characters of the character array starting with the element pointed by s. 
+            // s can contain null characters. The behavior is undefined if [s, s + count) is not a valid range (even though the 
+            // constructor may not access any of the elements of this range). After construction, data() is equal to s, and size() 
+            // is equal to count.
+            constexpr basic_string_view (const CharT* s, size_type count) : data_(s), size_(count) {}
+
+            // Constructs a view of the null-terminated character string pointed to by s, not including the terminating null character. 
+            // The length of the view is determined as if by Traits::length(s). The behavior is undefined if [s, s + Traits::length(s)) 
+            // is not a valid range. After construction, data() is equal to s, and size() is equal to Traits::length(s).
+            constexpr basic_string_view (const CharT* s) : data_(s), size_(Traits::length(s)) {}
             
+            // Constructs a std::basic_string_view over the range [first, last). The behavior is undefined if [first, last) is not a 
+            // valid range, if It does not actually model contiguous_iterator, or if End does not actually model sized_sentinel_for 
+            // for It. After construction, data() is equal to std::to_address(first), and size() is equal to last - first.
+            // This overload participates in overload resolution only if 
+            //         It satisfies contiguous_iterator,
+            //         End satisfies sized_sentinel_for for It,
+            //         std::iter_value_t<It> and CharT are the same type, and
+            //         End is not convertible to std::size_t.
             template <class It, class End>
-            constexpr basic_string_view (It first, End last);
-                
+            constexpr basic_string_view (It first, End last) : data_(std::to_adress(first)), size_(std::distance(first, last)) {
+                static_assert(std::is_same_v<std::iter_value_t<It>, CharT>, "Iterator value type must be the same as CharT");
+                static_assert(std::contiguous_iterator<It>, "It must satisfy contiguous_iterator");
+                static_assert(std::sized_sentinel_for<End, It>, "End must satisfy sized_sentinel_for<It>");
+            }
+            
+            // Constructs a std::basic_string_view over the range r. After construction, data() is equal to ranges::data(r), 
+            // and size() is equal to ranges::size(r).
+            // This overload participates in overload resolution only if
+            //         std::remove_cvref_t<R> is not the same type as std::basic_string_view,
+            //         R models contiguous_range and sized_range,
+            //         ranges::range_value_t<R> and CharT are the same type,
+            //         R is not convertible to const CharT*, and
+            //         Let d be an lvalue of type std::remove_cvref_t<R>, d.operator ::std::basic_string_view<CharT, Traits>() 
+            //             is not a valid expression.
             template <class R> 
-            constexpr explicit basic_string_view (R&& r);
+            constexpr explicit basic_string_view (R&& r) : data_(std::ranges::data(r)), size_(std::ranges::size(r)) {
+                static_assert(std::is_same_v<std::remove_cvref_t<R>, basic_string_view>, "R must not be basic_string_view");
+                // static_assert()
+                /// TODO: more static_asserts
+            }
 
             constexpr basic_string_view (std::nullptr_t) = delete;
 
