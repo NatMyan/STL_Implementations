@@ -63,6 +63,7 @@
         "memory": "cpp",
         "type_traits": "cpp",
         "algorithm": "cpp",
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "sstream": "cpp"
     }
 }

@@ -70,13 +70,18 @@ namespace bsv {
             //         R models contiguous_range and sized_range,
             //         ranges::range_value_t<R> and CharT are the same type,
             //         R is not convertible to const CharT*, and
-            //         Let d be an lvalue of type std::remove_cvref_t<R>, d.operator ::std::basic_string_view<CharT, Traits>() 
+            //         Let d be an lvalue of type std::remove_cvref_t<R>, d.operator::std::basic_string_view<CharT, Traits>() 
             //             is not a valid expression.
             template <class R> 
             constexpr explicit basic_string_view (R&& r) : data_(std::ranges::data(r)), size_(std::ranges::size(r)) {
                 static_assert(std::is_same_v<std::remove_cvref_t<R>, basic_string_view>, "R must not be basic_string_view");
-                // static_assert()
-                /// TODO: more static_asserts
+                static_assert(std::ranges::contiguous_range<R>, "R must satisfy contiguous_range");
+                static_assert(std::ranges::sized_range<R>, "R must satisfy sized_range");
+                static_assert(std::is_same_v<std::ranges::range_value_t<R>, CharT>, "range_value_t<R> must be the same type as CharT");
+                static_assert(!std::is_convertible_v<R, const CharT*>, "R must not be convertible to const CharT*");
+                static_assert(!requires { static_cast<basic_string_view<CharT, Traits>>(std::declval<R>()); }, "R must not have an operator that converts it to basic_string_view<CharT, Traits>");
+                // std::declval<R>() is basically pretending to have an instance of type R w/out actually creating one
+                /// TODO: is the last assert correct ?
             }
 
             constexpr basic_string_view (std::nullptr_t) = delete;
@@ -167,6 +172,9 @@ namespace bsv {
             constexpr size_type find_last_not_of (const CharT* s, size_type pos, size_type count) const;
             constexpr size_type find_last_not_of (const CharT* s, size_type pos = npos) const;
     };
+
 } // namespace bsv
+
+#include "string_view.impl.hpp"
 
 #endif // STRING_VIEW_HPP
