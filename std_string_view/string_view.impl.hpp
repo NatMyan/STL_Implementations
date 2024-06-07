@@ -321,7 +321,7 @@ namespace bsv {
     }
 
     template <typename CharT, typename Traits> 
-    constexpr basic_string_view<CharT, Traits>::find_first_not_of (const CharT* s, size_type pos = 0) const {
+    constexpr basic_string_view<CharT, Traits>::size_type basic_string_view<CharT, Traits>::find_first_not_of (const CharT* s, size_type pos = 0) const {
 
     }
     
