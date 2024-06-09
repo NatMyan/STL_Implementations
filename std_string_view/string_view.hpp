@@ -183,5 +183,6 @@ namespace bsv {
 } // namespace bsv
 
 #include "string_view.impl.hpp"
+#include "string_view_definitions.hpp"
 
 #endif // STRING_VIEW_HPP

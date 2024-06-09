@@ -5,6 +5,9 @@
 
 void test_string_view() {
     // Creating string views
+    bsv::string_view sv0("Hi there!");
+    std::cout << sv0 << std::endl;    // Hi there!
+
     bsv::basic_string_view<char> sv1("Hello, World!");
     bsv::basic_string_view<char> sv2("Hello, C++");
     bsv::basic_string_view<char> sv3("Hello, World!", 5);
