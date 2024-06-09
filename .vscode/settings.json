@@ -64,6 +64,9 @@
         "type_traits": "cpp",
         "algorithm": "cpp",
         "iterator": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "__availability": "cpp",
+        "version": "cpp",
+        "memory_resource": "cpp"
     }
 }

@@ -3,13 +3,11 @@
 
 #include <iterator>
 #include <string>
+#include <type_traits>
 
 namespace bsv {
     template <typename CharT, typename Traits = std::char_traits<CharT> > 
     class basic_string_view {
-        public:
-            static constexpr size_type npos = size_type(-1);
-
         public:
             using traits_type = Traits;
             using value_type = CharT;
@@ -23,6 +21,9 @@ namespace bsv {
             using reverse_iterator = const_reverse_iterator;
             using size_type = std::size_t;
             using difference_type = std::ptrdiff_t;
+        
+        public:
+            static constexpr size_type npos = size_type(-1);
 
         private:
             const_pointer data_;
@@ -56,11 +57,12 @@ namespace bsv {
             //         End satisfies sized_sentinel_for for It,
             //         std::iter_value_t<It> and CharT are the same type, and
             //         End is not convertible to std::size_t.
-            template <class It, class End>
-            constexpr basic_string_view (It first, End last) : data_(std::to_adress(first)), size_(std::distance(first, last)) {
+            template <typename It, typename End, typename = std::enable_if_t<!std::is_convertible_v<End, std::size_t> > > 
+            constexpr basic_string_view (It first, End last) : data_(std::to_address(first)), size_(std::distance(first, last)) {
                 static_assert(std::is_same_v<std::iter_value_t<It>, CharT>, "Iterator value type must be the same as CharT");
                 static_assert(std::contiguous_iterator<It>, "It must satisfy contiguous_iterator");
                 static_assert(std::sized_sentinel_for<End, It>, "End must satisfy sized_sentinel_for<It>");
+                static_assert(!std::is_convertible_v<End, std::size_t>, "End is not convertible to std::size_t.");
             }
             
             // Constructs a std::basic_string_view over the range r. After construction, data() is equal to ranges::data(r), 
@@ -72,7 +74,7 @@ namespace bsv {
             //         R is not convertible to const CharT*, and
             //         Let d be an lvalue of type std::remove_cvref_t<R>, d.operator::std::basic_string_view<CharT, Traits>() 
             //             is not a valid expression.
-            template <class R> 
+            template <typename R> 
             constexpr explicit basic_string_view (R&& r) : data_(std::ranges::data(r)), size_(std::ranges::size(r)) {
                 static_assert(std::is_same_v<std::remove_cvref_t<R>, basic_string_view>, "R must not be basic_string_view");
                 static_assert(std::ranges::contiguous_range<R>, "R must satisfy contiguous_range");
@@ -173,6 +175,11 @@ namespace bsv {
             constexpr size_type find_last_not_of (const CharT* s, size_type pos = npos) const;
     };
 
+    template <typename CharT, typename Traits>
+    std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, basic_string_view<CharT, Traits> v);
+
+    template< class CharT, class Traits >
+    constexpr bool operator== (basic_string_view<CharT,Traits> lhs, std::type_identity_t<basic_string_view<CharT,Traits> > rhs) noexcept;
 } // namespace bsv
 
 #include "string_view.impl.hpp"
