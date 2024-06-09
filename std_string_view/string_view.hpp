@@ -180,6 +180,7 @@ namespace bsv {
 
     template< class CharT, class Traits >
     constexpr bool operator== (basic_string_view<CharT,Traits> lhs, std::type_identity_t<basic_string_view<CharT,Traits> > rhs) noexcept;
+
 } // namespace bsv
 
 #include "string_view.impl.hpp"
